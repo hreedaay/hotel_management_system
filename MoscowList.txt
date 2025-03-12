@@ -1,0 +1,26 @@
+Must-Have 
+✅ User authentication with role-based access (Management, Customer)
+✅ Room management 
+✅ Booking system (make reservations, cancel bookings)
+✅ Check-in and check-out management
+✅ SQLite database to store user, booking, and room data
+✅ Responsive user interface using HTML, CSS, Flask
+✅ Deployment on Render
+
+Should-Have 
+🔹 Payment status tracking (paid, pending)
+🔹 Basic dashboard for Admin 
+🔹 Customer profile with booking history
+🔹 Room status updates (cleaning, occupied, available)
+
+Could-Have (Nice to Include)
+💡 Online payment integration (Stripe/PayPal)
+💡 Customer reviews and feedback system
+💡 Discount codes and special offers
+💡 Multi-language support
+
+Won’t-Have (Out of Scope for Now)
+❌ AI-based room pricing suggestions
+❌ Chatbot for customer support
+❌ Integration with third-party travel booking platforms
+❌ Mobile app version

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/customer.jpg") }}') no-repeat center fixed;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1;
+        }
+        .navbar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            color: black;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+        .dropdown-content a:hover {
+            background: lightgray;
+        }
+        h1 {
+            margin-top: 80px;
+        }
+        .bookings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 80%;
+            margin-top: 20px;
+        }
+        .booking-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: #333;
+        }
+        .cancel-btn {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* Return to Dashboard Button */
+        .return-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            color: black;
+        }
+        .return-btn:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Return to Dashboard Button -->
+    <a href="{{ url_for('customer_dashboard') }}" class="return-btn">← Return to Dashboard</a>
+
+    <div class="navbar">
+        <div class="dropdown">
+            <button>Menu</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="logout()">Logout</a>
+                <a href="#" onclick="confirmDeleteAccount()">Delete Account</a>
+            </div>
+        </div>
+    </div>
+
+    <h1>My Bookings</h1>
+    <div class="bookings-container" id="bookings">
+        <!-- Bookings will be loaded dynamically -->
+    </div>
+
+    <script>
+        function fetchBookings() {
+            fetch("/customer/api/my_bookings")
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById("bookings");
+                    container.innerHTML = "";
+                    if (data.length === 0) {
+                        container.innerHTML = "<p>No bookings found.</p>";
+                    } else {
+                        data.forEach(booking => {
+                            container.innerHTML += `
+                                <div class="booking-card">
+                                    <h2>Room ${booking.room_number}</h2>
+                                    <p>Date: ${booking.date}</p>
+                                    <p>Status: ${booking.status}</p>
+                                    ${booking.status !== "Cancelled" ? `<button class="cancel-btn" onclick="cancelBooking(${booking.id})">Cancel</button>` : ""}
+                                </div>
+                            `;
+                        });
+                    }
+                })
+                .catch(error => console.error("Error loading bookings:", error));
+        }
+
+        function cancelBooking(id) {
+            if (confirm("Are you sure you want to cancel this booking?")) {
+                fetch(`/customer/api/cancel_booking/${id}`, { method: "DELETE" })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message); // Show feedback
+                        fetchBookings(); // Refresh bookings list
+                    })
+                    .catch(error => console.error("Error cancelling booking:", error));
+            }
+        }
+
+
+        function logout() {
+            window.location.href = "/auth/logout";
+        }
+
+        function confirmDeleteAccount() {
+            if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                window.location.href = "/auth/delete_account";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchBookings);
+    </script>
+</body>
+</html>

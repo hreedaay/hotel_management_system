@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+
+        /* Full-page background with blur effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/management.jpg") }}') no-repeat center fixed;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 28px;
+            z-index: 1;
+        }
+
+        .bookings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 80%;
+            margin-top: 20px;
+            z-index: 1;
+        }
+
+        .booking-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            color: #333;
+        }
+
+        .booking-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancel-btn { background: #dc3545; color: white; }
+        .confirm-btn { background: #28a745; color: white; }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #3b4465;
+            transition: background 0.3s, transform 0.2s;
+            z-index: 2;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('management_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+    <h1>Manage Bookings</h1>
+    <div class="bookings-container" id="bookings">
+        <!-- Bookings will be dynamically added here -->
+    </div>
+
+    <script>
+        function fetchBookings() {
+            fetch("/bookings/api/bookings")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Bookings received:", data);
+                    const container = document.getElementById("bookings");
+                    container.innerHTML = "";
+                    data.forEach(booking => {
+                        container.innerHTML += `
+                            <div class="booking-card">
+                                <h2>Room ${booking.room_number}</h2>
+                                <p>Customer: ${booking.customer_name}</p>
+                                <p>Date: ${booking.date}</p>
+                                <p>Status: <strong>${booking.status}</strong></p>
+
+                                <button class="btn confirm-btn" onclick="updateBooking(${booking.id}, 'Confirmed')">Confirm</button>
+                                <button class="btn cancel-btn" onclick="updateBooking(${booking.id}, 'Cancelled')">Cancel</button>
+                                <button class="btn delete-btn" onclick="deleteBooking(${booking.id})" style="background: #ff9800; color: white;">Delete</button>
+                            </div>
+                        `;
+                    });
+                })
+                .catch(error => console.error("Error loading bookings:", error));
+        }
+
+        function updateBooking(id, status) {
+            fetch(`/bookings/update/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);  // Show alert for errors
+                } else {
+                    fetchBookings();  // Refresh bookings on success
+                }
+            })
+            .catch(error => console.error("Error updating booking:", error));
+        }
+
+        function deleteBooking(id) {
+            if (!confirm("Are you sure you want to delete this booking?")) return;
+
+            fetch(`/bookings/delete/${id}`, { method: "DELETE" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                } else {
+                    fetchBookings();  // Refresh bookings on success
+                }
+            })
+            .catch(error => console.error("Error deleting booking:", error));
+        }
+
+
+        document.addEventListener("DOMContentLoaded", fetchBookings);
+
+    </script>
+</body>
+</html>

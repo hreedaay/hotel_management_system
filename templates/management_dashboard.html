@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+
+        /* Background image covers full page */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/management.jpg") }}') no-repeat center fixed;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            z-index: 1;
+        }
+
+        .dashboard-container {
+            display: flex;
+            gap: 50px;
+            z-index: 1;
+        }
+
+        .box {
+            width: 250px;
+            height: 180px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            color: #3b4465;
+        }
+
+        .box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Management Dashboard</h1>
+    <div class="dashboard-container">
+        <div class="box" onclick="navigate('{{ url_for('room.get_rooms') }}')">Rooms</div>
+        <div class="box" onclick="navigate('{{ url_for('booking.get_bookings') }}')">Bookings</div>
+    </div>
+    <script>
+        function navigate(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+</html>

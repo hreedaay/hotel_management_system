@@ -1,0 +1,9 @@
+1. Management
+	i. Dashboard
+	ii. Rooms
+	iii. Booking 
+	
+2. Customer
+	i. Dashboard
+	ii. My bookings
+	ii. Rooms available
